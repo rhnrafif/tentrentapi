@@ -1,9 +1,9 @@
 Tent Rent API 
 
-Tent Rent API Application is an service for rent a Tent for Event Support. 
-Based on general peoples need, this app can connecting between customer who need a tent to Mitra. 
-Mitra is tent owner, mitra can create the product to this app 
-and customer can see the list of tent product by GetProductList.
+The Tent Rent API Application is a service for renting a tent for event support. 
+This app can connect customers in need of a tent with Mitra based on their general needs. 
+Mitra is the tent owner, Mitra can add the product to this app, 
+and customers can see the list of tent products by using GetProductList.
 
 Here is the documentation for services on the API :
 - Create, Update, and Delete Customer, this api can modify the customer's data.
@@ -11,4 +11,4 @@ Here is the documentation for services on the API :
 - Create, Update, Delete Mitra, this api can modify the Mitra's data.
 - Create, Update, Delete Product. With this service, mitra can add, delete, or update the product on app.
 
-This mini project API use Dapper and SQLClinet for Execute Native Query SQL.
+This mini project API use Dapper and SQLClient for Execute Native Query SQL.
