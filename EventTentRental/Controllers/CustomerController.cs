@@ -1,5 +1,6 @@
 ﻿using EventTentRental.Application.Services.Customers;
 using EventTentRental.Application.Services.Transactions;
+using EventTentRental.Application.Services.Transactions.Dto;
 using EventTentRental.Databases.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -68,6 +69,32 @@ namespace EventTentRental.Controllers
 			}
 		}
 
-		
+		[HttpPost("create-transaction")]
+		public IActionResult CreateTransaction([FromBody] TransactionDto model)
+		{
+			try
+			{
+				_transactionAppService.Create(model);
+				return Ok(new { Message = "Success" });
+			}
+			catch
+			{
+				return BadRequest();
+			}
+		}
+
+		[HttpPatch("update-payment")]
+		public IActionResult UpdatePaymentTransaction([FromBody]UpdateTransactionDto model)
+		{
+			try
+			{
+				_transactionAppService.Update(model);
+				return Ok(new { Message = "Success" });
+			}
+			catch
+			{
+				return BadRequest();
+			}
+		}
 	}
 }

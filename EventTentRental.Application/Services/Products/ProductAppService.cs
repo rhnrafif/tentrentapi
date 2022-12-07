@@ -1,8 +1,10 @@
-﻿using EventTentRental.Databases;
+﻿using Dapper;
+using EventTentRental.Databases;
 using EventTentRental.Databases.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,27 +13,116 @@ namespace EventTentRental.Application.Services.Products
 {
 	public class ProductAppService : IProductAppService
 	{
-		private readonly TentContext _context;
-		public ProductAppService(TentContext context)
-		{
-			_context = context;
-		}
+		private readonly string connStr = "Server=RHNRAFIF\\SQLEXPRESS;Database=TentRentDB;Trusted_Connection=True;TrustServerCertificate=True;";
 
 		public void Create(Product model)
 		{
-			_context.Products.FromSql($"INSERT INTO Product (MitraId, Category, Size, Description) VALUES ({model.MitraId}, '{model.Category}', '{model.Size}' , '{model.Description}' )");
-			_context.SaveChanges();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				var guid = Guid.NewGuid();
+				var transaction = connection.BeginTransaction();
+				try
+				{
+					connection.Execute("INSERT INTO Product (Id, MitraId, Name, Category, Size, Description) VALUES (@guid,@MitraId, @Name, @Category, @Size, @Description)", new
+					{
+						guid,
+						model.MitraId,
+						model.Name,
+						model.Category,
+						model.Size,
+						model.Description
+					}, transaction);
+					transaction.Commit();
+				}
+				catch
+				{
+					transaction.Rollback();
+				}
+				connection.Close();
+			}
 		}
 
-		public void Delete(int id)
+		public void Delete(string name)
 		{
-			_context.Products.FromSql($"DELETE FROM Product WHERE Id={id}");
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				var transaction = connection.BeginTransaction();
+				try
+				{
+					var listProduct = GetByName(name);
+					if(listProduct == null)
+					{
+						return;
+					}
+
+					connection.Execute("DELETE FROM Product WHERE Name = @Name", new
+					{
+						name,
+					}, transaction);
+					transaction.Commit();
+				}
+				catch
+				{
+					transaction.Rollback();
+				}
+				connection.Close();
+			}
+		}
+
+		public Product GetByName(string name)
+		{
+			var product = new Product();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				try
+				{
+					var listProduct = connection.Query<Product>(@"SELECT * FROM Product WHERE Name = @Name", new { name }).ToList();
+					product = listProduct.FirstOrDefault();
+					return product;
+				}
+				catch
+				{
+					return product;
+				}
+				connection.Close();
+			}
 		}
 
 		public void Update(Product model)
 		{
-			_context.Products.FromSql($"UPDATE Product SET MitraId = {model.MitraId}, Category = '{model.Category}', Size = '{model.Size}', Description = '{model.Description}' WHERE	Id = {model.Id}");
-			_context.SaveChanges();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				var guid = Guid.NewGuid();
+				var transaction = connection.BeginTransaction();
+				try
+				{
+					var prod = GetByName(model.Name);
+					if (prod == null)
+					{
+						return;
+					}
+					var Id = prod.Id;
+					connection.Execute("UPDATE Product SET MitraId = @MitraId, Name = @Name, Category = @Category, Size = @Size, Description = @Description WHERE Id = @Id", new
+					{
+						model.MitraId,
+						model.Name,
+						model.Category,
+						model.Size,
+						model.Description
+					}, transaction);
+
+					transaction.Commit();
+				}
+				catch
+				{
+					transaction.Rollback();
+				}
+				connection.Close();
+			}
 		}
 	}
 }

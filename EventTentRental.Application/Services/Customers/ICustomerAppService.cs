@@ -13,5 +13,6 @@ namespace EventTentRental.Application.Services.Customers
 		void Create(Customer model);	
 		void Update(Customer model);	
 		void Delete(string name);
+		Customer GetByName(string name);
 	}
 }

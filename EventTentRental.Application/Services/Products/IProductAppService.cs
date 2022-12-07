@@ -11,6 +11,7 @@ namespace EventTentRental.Application.Services.Products
 	{
 		void Create(Product model);
 		void Update(Product model);
-		void Delete(int id);
+		void Delete(string name);
+		Product GetByName (string name);
 	}
 }

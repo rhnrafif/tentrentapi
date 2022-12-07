@@ -12,5 +12,6 @@ namespace EventTentRental.Application.Services.Mitras
 		void Create(Mitra model);
 		void Update(Mitra model);
 		void Delete(string name);
+		Mitra GetByName(string name);
 	}
 }

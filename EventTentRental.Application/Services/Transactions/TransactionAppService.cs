@@ -1,8 +1,11 @@
-﻿using EventTentRental.Databases;
+﻿using Dapper;
+using EventTentRental.Application.Services.Transactions.Dto;
+using EventTentRental.Databases;
 using EventTentRental.Databases.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,27 +14,113 @@ namespace EventTentRental.Application.Services.Transactions
 {
 	public class TransactionAppService : ITransactionAppService
 	{
-		private readonly TentContext _context;
-		public TransactionAppService(TentContext context)
+		private readonly string connStr = "Server=RHNRAFIF\\SQLEXPRESS;Database=TentRentDB;Trusted_Connection=True;TrustServerCertificate=True;";
+
+		public void Create(TransactionDto model)
 		{
-			_context = context;
-		}
-		public void Create(Transaction model)
-		{
-			_context.Transactions
-				.FromSql($"INSERT INTO Transaction (CustomerId, ProductId, Quantity, StartDate, EndDate) VALUES ({model.CustomerId}, {model.ProductId}, {model.Quantity}, {DateTime.Now}, {DateTime.Now.AddHours(24)})");
-			_context.SaveChanges();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				var guid = Guid.NewGuid();
+				var startdate = DateTime.Now;
+				var endDate = DateTime.Now.AddDays(1);
+				bool isDone = false;
+				var transaction = connection.BeginTransaction();
+				try
+				{
+					connection.Execute("INSERT INTO Transaction (Id, CustomerId, ProductId, Quantity, StartDate, EndDate, IsDone) VALUES (@guid,@CustomerId, @ProductId, @Quantity, @StartDate, @EndDate, @IsDone)", new
+					{
+						guid,
+						model.CustomerId,
+						model.ProductId,
+						model.Quantity,
+						startdate,
+						endDate,
+						isDone
+					}, transaction) ;
+					transaction.Commit();
+				}
+				catch
+				{
+					transaction.Rollback();
+				}
+				connection.Close();
+			}
 		}
 
-		public void Delete(int id)
+		public void Delete(int custId)
 		{
-			_context.Transactions.FromSql($"DELETE FROM Transaction WHERE Id = {id}");
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				var transaction = connection.BeginTransaction();
+				try
+				{
+					var trans = GetByName(custId);
+					if (trans == null)
+					{
+						return;
+					}
+
+					connection.Execute("DELETE FROM Transaction WHERE Id = @Id", new
+					{
+						trans.Id,
+					}, transaction);
+					transaction.Commit();
+				}
+				catch
+				{
+					transaction.Rollback();
+				}
+				connection.Close();
+			}
 		}
 
-		public void Update(Transaction model)
+		public Transaction GetByName(int custId)
 		{
-			_context.Transactions.FromSql($"UPDATE Transaction SET CustomerId = {model.CustomerId}, ProductId = {model.ProductId}, Quantity = {model.Quantity}, StartDate = {DateTime.Now}, EndDate = {DateTime.Now.AddHours(24)} WHERE Id = {model.Id}");
-			_context.SaveChanges();
+			var trans = new Transaction();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				try
+				{
+					var listTrans = connection.Query<Transaction>(@"SELECT * FROM Transaction WHERE CustomerId = @CustomerId", new { custId }).ToList();
+					trans = listTrans.FirstOrDefault( w => w.IsDone == true);
+					return trans;
+				}
+				catch
+				{
+					return trans;
+				}
+				connection.Close();
+			}
+		}
+
+		public void Update(UpdateTransactionDto model)
+		{
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();				
+				bool isDone = true;
+				var transaction = connection.BeginTransaction();
+				try
+				{
+					var trans = GetByName(model.CustomerId);
+					if (trans == null)
+					{
+						return;
+					}
+					var Id = trans.Id;
+
+					connection.Execute("UPDATE Transaction SET IsDone = @IsDone)", new { isDone }, transaction);
+					transaction.Commit();
+				}
+				catch
+				{
+					transaction.Rollback();
+				}
+				connection.Close();
+			}
 		}
 	}
 }

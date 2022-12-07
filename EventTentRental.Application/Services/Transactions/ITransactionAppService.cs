@@ -1,4 +1,5 @@
-﻿using EventTentRental.Databases.Models;
+﻿using EventTentRental.Application.Services.Transactions.Dto;
+using EventTentRental.Databases.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,9 @@ namespace EventTentRental.Application.Services.Transactions
 {
 	public interface ITransactionAppService
 	{
-		void Create(Transaction model);
-		void Update(Transaction model);
-		void Delete(int id);
+		void Create(TransactionDto model);
+		void Update(UpdateTransactionDto model);
+		void Delete(int custId);
+		Transaction GetByName(int custId);
 	}
 }
