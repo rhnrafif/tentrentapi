@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EventTentRental.Databases.Models
 {
-	[Table("Transaction")]
+	[Table("Transactions")]
 	public class Transaction
 	{
 		public Guid Id { get; set; }

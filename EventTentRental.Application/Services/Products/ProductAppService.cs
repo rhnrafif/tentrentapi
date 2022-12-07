@@ -91,6 +91,26 @@ namespace EventTentRental.Application.Services.Products
 			}
 		}
 
+		public List<Product> GetProducts()
+		{
+			List<Product> product = new List<Product>();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				try
+				{
+					var listProduct = connection.Query<Product>(@"SELECT * FROM Product");
+					product = listProduct.ToList();
+					return product;
+				}
+				catch
+				{
+					return product;
+				}
+				connection.Close();
+			}
+		}
+
 		public void Update(Product model)
 		{
 			using (var connection = new SqlConnection(connStr))

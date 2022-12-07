@@ -96,5 +96,19 @@ namespace EventTentRental.Controllers
 				return BadRequest();
 			}
 		}
+
+		[HttpGet("all-transaction")]
+		public IActionResult GetAllTransaction()
+		{
+			try
+			{
+				var list = _transactionAppService.GetAllTransaction();
+				return Ok(new { Data = list });
+			}
+			catch
+			{
+				return BadRequest();
+			}
+		}
 	}
 }

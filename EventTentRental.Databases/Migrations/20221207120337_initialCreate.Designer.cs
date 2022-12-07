@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventTentRental.Databases.Migrations
 {
     [DbContext(typeof(TentContext))]
-    [Migration("20221207050859_initialCretae")]
-    partial class initialCretae
+    [Migration("20221207120337_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -121,7 +121,7 @@ namespace EventTentRental.Databases.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("EventTentRental.Databases.Models.User", b =>

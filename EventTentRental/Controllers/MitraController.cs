@@ -110,5 +110,18 @@ namespace EventTentRental.Controllers
 				return BadRequest();
 			}
 		}
+		[HttpGet("list-product")]
+		public IActionResult GetAllProduct()
+		{
+			try
+			{
+				var list = _productAppService.GetProducts();
+				return Ok(new { Data = list });
+			}
+			catch
+			{
+				return BadRequest();
+			}
+		}
 	}
 }

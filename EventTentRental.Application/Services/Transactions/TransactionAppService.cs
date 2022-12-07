@@ -28,7 +28,7 @@ namespace EventTentRental.Application.Services.Transactions
 				var transaction = connection.BeginTransaction();
 				try
 				{
-					connection.Execute("INSERT INTO Transaction (Id, CustomerId, ProductId, Quantity, StartDate, EndDate, IsDone) VALUES (@guid,@CustomerId, @ProductId, @Quantity, @StartDate, @EndDate, @IsDone)", new
+					connection.Execute("INSERT INTO Transactions (Id, CustomerId, ProductId, Quantity, StartDate, EndDate, IsDone) VALUES (@guid,@CustomerId, @ProductId, @Quantity, @StartDate, @EndDate, @IsDone)", new
 					{
 						guid,
 						model.CustomerId,
@@ -62,7 +62,7 @@ namespace EventTentRental.Application.Services.Transactions
 						return;
 					}
 
-					connection.Execute("DELETE FROM Transaction WHERE Id = @Id", new
+					connection.Execute("DELETE FROM Transactions WHERE Id = @Id", new
 					{
 						trans.Id,
 					}, transaction);
@@ -76,6 +76,26 @@ namespace EventTentRental.Application.Services.Transactions
 			}
 		}
 
+		public List<Transaction> GetAllTransaction()
+		{
+			List<Transaction> trans = new List<Transaction>();
+			using (var connection = new SqlConnection(connStr))
+			{
+				connection.Open();
+				try
+				{
+					var listTrans = connection.Query<Transaction>(@"SELECT * FROM Transactions");
+					trans = listTrans.ToList();
+					return trans;
+				}
+				catch
+				{
+					return trans;
+				}
+				connection.Close();
+			}
+		}
+
 		public Transaction GetByName(int custId)
 		{
 			var trans = new Transaction();
@@ -84,7 +104,7 @@ namespace EventTentRental.Application.Services.Transactions
 				connection.Open();
 				try
 				{
-					var listTrans = connection.Query<Transaction>(@"SELECT * FROM Transaction WHERE CustomerId = @CustomerId", new { custId }).ToList();
+					var listTrans = connection.Query<Transaction>(@"SELECT * FROM Transactions WHERE CustomerId = @CustomerId", new { custId }).ToList();
 					trans = listTrans.FirstOrDefault( w => w.IsDone == true);
 					return trans;
 				}
@@ -112,7 +132,7 @@ namespace EventTentRental.Application.Services.Transactions
 					}
 					var Id = trans.Id;
 
-					connection.Execute("UPDATE Transaction SET IsDone = @IsDone)", new { isDone }, transaction);
+					connection.Execute("UPDATE Transactions SET IsDone = @IsDone)", new { isDone }, transaction);
 					transaction.Commit();
 				}
 				catch

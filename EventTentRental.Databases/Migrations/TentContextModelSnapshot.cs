@@ -118,7 +118,7 @@ namespace EventTentRental.Databases.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("EventTentRental.Databases.Models.User", b =>

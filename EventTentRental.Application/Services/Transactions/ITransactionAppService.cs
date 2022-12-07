@@ -14,5 +14,6 @@ namespace EventTentRental.Application.Services.Transactions
 		void Update(UpdateTransactionDto model);
 		void Delete(int custId);
 		Transaction GetByName(int custId);
+		List<Transaction> GetAllTransaction();
 	}
 }
